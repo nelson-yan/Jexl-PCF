@@ -55,6 +55,8 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
             .catch((error: any) => {
                 console.error(`Error: ${error}`);
                 // Handle the error
+                this._label.innerHTML=error;
+                this._notifyOutputChanged();
             });
     }
 
@@ -64,10 +66,12 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void
     {
-        // Add code to update control view
-        this._data = context.parameters.Data.raw||"";
-        this._expression = context.parameters.Expression.raw||"";
-        this.evaluateExpression(this._data,this._expression);
+        if(context.updatedProperties.indexOf('Data')>-1 || context.updatedProperties.indexOf('Expression')>-1){
+              // Add code to update control view
+            this._data = context.parameters.Data.raw||"";
+            this._expression = context.parameters.Expression.raw||"";
+            this.evaluateExpression(this._data,this._expression);
+        }
     }
 
     /**
