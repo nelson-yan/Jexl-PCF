@@ -9,6 +9,7 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
     private _data : string;
     private _expression: string;
     private _output: string
+    private  _jexl = new Jexl.Jexl();
 
     /**
      * Empty constructor.
@@ -32,20 +33,20 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
         this._notifyOutputChanged = notifyOutputChanged;
         this._label = document.createElement('label');
         this._label.id="outputlabel";
-        this._label.style.display='none';
+        this._label.style.display='flex';
         container.append(this._label);
     }
 
     private evaluateExpression(data: string, expr: string){
 
         // Create a Jexl instance
-        const jexl = new Jexl.Jexl();
+        //const jexl = new Jexl.Jexl();
 
         const Data = JSON.parse(data);
         const Expression = expr;
 
         // Evaluate the expression
-        jexl.eval(Expression,Data)
+        this._jexl.eval(Expression,Data)
             .then((result: any) => {
                 this._output = result;
                 this._label.innerHTML=result;
@@ -53,9 +54,9 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
                 this._notifyOutputChanged();
             })
             .catch((error: any) => {
-                console.error(`Error: ${error}`);
+                console.log(`Error: ${error}`);
                 // Handle the error
-                this._label.innerHTML=error;
+                this._label.innerHTML="";
                 this._notifyOutputChanged();
             });
     }
@@ -66,8 +67,12 @@ export class JexlPCF implements ComponentFramework.StandardControl<IInputs, IOut
      */
     public updateView(context: ComponentFramework.Context<IInputs>): void
     {
-        if(context.updatedProperties.indexOf('Data')>-1 || context.updatedProperties.indexOf('Expression')>-1){
+        //if(context.updatedProperties.indexOf('Data')>-1 || context.updatedProperties.indexOf('Expression')>-1){
               // Add code to update control view
+
+        if(this._data !== context.parameters.Data.raw||"" || this._expression !== context.parameters.Expression.raw||""){
+            console.log("--- udpateViewTriggered! ---");
+
             this._data = context.parameters.Data.raw||"";
             this._expression = context.parameters.Expression.raw||"";
             this.evaluateExpression(this._data,this._expression);
